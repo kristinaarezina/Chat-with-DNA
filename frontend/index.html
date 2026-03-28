@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BioReason-lite · Chat with DNA</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Inter", system-ui, sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #21262d;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    header h1 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #58a6ff;
+    }
+
+    header span { font-size: 0.85rem; color: #8b949e; }
+
+    #chat {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .bubble {
+      max-width: 720px;
+      border-radius: 12px;
+      padding: 0.85rem 1.1rem;
+      line-height: 1.6;
+      font-size: 0.92rem;
+    }
+
+    .bubble.user {
+      align-self: flex-end;
+      background: #1f6feb;
+      color: #fff;
+    }
+
+    .bubble.bot {
+      align-self: flex-start;
+      background: #161b22;
+      border: 1px solid #30363d;
+    }
+
+    .bubble.bot .final-answer {
+      font-size: 1rem;
+      font-weight: 500;
+      margin-bottom: 0.75rem;
+      color: #e6edf3;
+    }
+
+    .bubble.bot .label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #58a6ff;
+      margin-bottom: 0.4rem;
+    }
+
+    .reasoning-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .reasoning-list li {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.85rem;
+      color: #c9d1d9;
+    }
+
+    .evo2-badge {
+      display: inline-block;
+      margin-top: 0.6rem;
+      font-size: 0.75rem;
+      background: #0e4429;
+      color: #3fb950;
+      border: 1px solid #238636;
+      border-radius: 6px;
+      padding: 0.2rem 0.6rem;
+    }
+
+    .gene-tag {
+      display: inline-block;
+      font-size: 0.75rem;
+      background: #161b22;
+      color: #d2a8ff;
+      border: 1px solid #6e40c9;
+      border-radius: 6px;
+      padding: 0.2rem 0.6rem;
+      margin-right: 0.4rem;
+    }
+
+    .error { color: #f85149; font-size: 0.88rem; }
+
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid #30363d;
+      border-top-color: #58a6ff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #input-row {
+      border-top: 1px solid #21262d;
+      padding: 1rem 1.5rem;
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    #user-input {
+      flex: 1;
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      color: #e6edf3;
+      padding: 0.65rem 0.9rem;
+      font-size: 0.92rem;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    #user-input:focus { border-color: #58a6ff; }
+
+    button#send-btn {
+      background: #238636;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 0.92rem;
+      font-weight: 600;
+      padding: 0 1.25rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    button#send-btn:hover { background: #2ea043; }
+    button#send-btn:disabled { background: #21262d; cursor: not-allowed; }
+
+    .suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 0 1.5rem 1rem;
+    }
+
+    .suggestion-chip {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 20px;
+      color: #8b949e;
+      font-size: 0.8rem;
+      padding: 0.3rem 0.8rem;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .suggestion-chip:hover { border-color: #58a6ff; color: #58a6ff; }
+  </style>
+</head>
+<body>
+
+<header>
+  <span style="font-size:1.4rem">🧬</span>
+  <h1>BioReason-lite</h1>
+  <span>Chat with DNA · powered by Evo 2 + LLM</span>
+</header>
+
+<div id="chat"></div>
+
+<div class="suggestions" id="suggestions">
+  <span class="suggestion-chip" onclick="fillInput(this)">What happens if BRCA1 mutates?</span>
+  <span class="suggestion-chip" onclick="fillInput(this)">Explain TP53's role in cancer</span>
+  <span class="suggestion-chip" onclick="fillInput(this)">How does KRAS drive tumor growth?</span>
+  <span class="suggestion-chip" onclick="fillInput(this)">What is the function of PTEN?</span>
+</div>
+
+<div id="input-row">
+  <input id="user-input" type="text" placeholder="Ask a biology question… e.g. What happens if BRCA1 mutates?" />
+  <button id="send-btn" onclick="sendMessage()">Ask</button>
+</div>
+
+<script>
+  const API = "http://localhost:8000";
+
+  const chatEl = document.getElementById("chat");
+  const inputEl = document.getElementById("user-input");
+  const sendBtn = document.getElementById("send-btn");
+
+  inputEl.addEventListener("keydown", e => {
+    if (e.key === "Enter") sendMessage();
+  });
+
+  function fillInput(el) {
+    inputEl.value = el.textContent;
+    inputEl.focus();
+  }
+
+  function appendBubble(html, cls) {
+    const div = document.createElement("div");
+    div.className = `bubble ${cls}`;
+    div.innerHTML = html;
+    chatEl.appendChild(div);
+    chatEl.scrollTop = chatEl.scrollHeight;
+    return div;
+  }
+
+  async function sendMessage() {
+    const msg = inputEl.value.trim();
+    if (!msg) return;
+
+    inputEl.value = "";
+    sendBtn.disabled = true;
+
+    appendBubble(escHtml(msg), "user");
+
+    const loadingBubble = appendBubble('<span class="spinner"></span>', "bot");
+
+    try {
+      const res = await fetch(`${API}/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: msg }),
+      });
+
+      if (!res.ok) throw new Error(`Server error ${res.status}`);
+      const data = await res.json();
+
+      loadingBubble.innerHTML = renderResponse(data);
+    } catch (err) {
+      loadingBubble.innerHTML = `<span class="error">Error: ${escHtml(err.message)}</span>`;
+    } finally {
+      sendBtn.disabled = false;
+    }
+  }
+
+  function renderResponse(d) {
+    let html = "";
+
+    // Gene tag
+    if (d.gene) html += `<span class="gene-tag">🧬 ${escHtml(d.gene)}</span>`;
+    if (d.mutation) html += `<span class="gene-tag">⚡ ${escHtml(d.mutation)}</span>`;
+    if (d.gene || d.mutation) html += "<br><br>";
+
+    // Final answer
+    html += `<div class="final-answer">${escHtml(d.final_answer)}</div>`;
+
+    // Reasoning steps
+    if (d.reasoning && d.reasoning.length) {
+      html += `<div class="label">Reasoning trace</div>`;
+      html += `<ul class="reasoning-list">`;
+      d.reasoning.forEach(step => {
+        html += `<li>${escHtml(step)}</li>`;
+      });
+      html += `</ul>`;
+    }
+
+    // Evo2 badge
+    if (d.evo2 && d.evo2.function !== "unavailable") {
+      html += `<div class="evo2-badge">Evo 2 · ${escHtml(d.evo2.function)} · ${escHtml(d.evo2.mutation_effect)}</div>`;
+    }
+
+    if (d.cached) html += `<div style="font-size:0.72rem;color:#8b949e;margin-top:0.5rem">⚡ cached</div>`;
+
+    return html;
+  }
+
+  function escHtml(s) {
+    if (!s) return "";
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+</script>
+
+</body>
+</html>
