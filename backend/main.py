@@ -6,7 +6,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from pipeline import run_pipeline
-from evo2 import call_evo2, get_sequence_for_gene, apply_mutation, MUTATION_DESCRIPTIONS
+from evo2 import call_evo2, get_sequence_for_gene, apply_mutation, MUTATION_DESCRIPTIONS, apply_gene_edit, EDIT_DESCRIPTIONS
 
 logging.basicConfig(level=logging.INFO)
 
@@ -80,6 +80,56 @@ async def analyze(req: AnalyzeRequest):
             "sequence": mutated_seq,
             "score": mutated_result.get("score"),
             "mutation_effect": mutated_result.get("mutation_effect"),
+        },
+        "score_delta": score_delta,
+    }
+
+
+class EditRequest(BaseModel):
+    gene: str
+    edit_type: str
+
+
+@app.post("/edit")
+async def edit(req: EditRequest):
+    gene = req.gene.upper()
+    edit_type = req.edit_type
+
+    sequence = get_sequence_for_gene(gene)
+    if not sequence:
+        raise HTTPException(status_code=404, detail=f"Gene '{gene}' not found")
+
+    if edit_type not in EDIT_DESCRIPTIONS:
+        raise HTTPException(status_code=400, detail=f"Unknown edit type '{edit_type}'")
+
+    try:
+        edited_seq, change_desc = apply_gene_edit(sequence, edit_type)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    original_result, edited_result = await asyncio.gather(
+        call_evo2(gene, sequence),
+        call_evo2(gene, edited_seq),
+    )
+
+    score_delta = None
+    if original_result.get("score") is not None and edited_result.get("score") is not None:
+        score_delta = round(edited_result["score"] - original_result["score"], 4)
+
+    return {
+        "gene": gene,
+        "edit_type": edit_type,
+        "edit_label": EDIT_DESCRIPTIONS[edit_type],
+        "change": change_desc,
+        "original": {
+            "sequence": sequence,
+            "score": original_result.get("score"),
+            "mutation_effect": original_result.get("mutation_effect"),
+        },
+        "edited": {
+            "sequence": edited_seq,
+            "score": edited_result.get("score"),
+            "mutation_effect": edited_result.get("mutation_effect"),
         },
         "score_delta": score_delta,
     }
