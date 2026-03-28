@@ -33,15 +33,19 @@
     header span { font-size: 0.85rem; color: #8b949e; }
 
     /* ── Gene Explorer panel ───────────────────────────── */
-    #explorer {
+    #explorer,
+    #editing-explorer {
       border-bottom: 1px solid #21262d;
       background: #0d1117;
       overflow: hidden;
       transition: max-height 0.3s ease;
     }
 
-    #explorer.collapsed { max-height: 0; overflow: hidden; }
-    #explorer.open      { max-height: 420px; overflow-y: auto; }
+    #explorer.collapsed,
+    #editing-explorer.collapsed { max-height: 0; overflow: hidden; }
+
+    #explorer.open,
+    #editing-explorer.open      { max-height: 420px; overflow-y: auto; }
 
     .explorer-inner {
       padding: 1rem 1.5rem 1.2rem;
@@ -208,7 +212,8 @@
       gap: 0.75rem;
     }
 
-    #analyze-btn {
+    #analyze-btn,
+    #edit-btn {
       background: #1f6feb;
       border: none;
       border-radius: 8px;
@@ -220,8 +225,11 @@
       transition: background 0.15s;
     }
 
-    #analyze-btn:hover  { background: #388bfd; }
-    #analyze-btn:disabled { background: #21262d; cursor: not-allowed; color: #8b949e; }
+    #analyze-btn:hover,
+    #edit-btn:hover  { background: #388bfd; }
+
+    #analyze-btn:disabled,
+    #edit-btn:disabled { background: #21262d; cursor: not-allowed; color: #8b949e; }
 
     .explorer-hint {
       font-size: 0.75rem;
@@ -229,7 +237,8 @@
     }
 
     /* ── toggle bar ─────────────────────────────────────── */
-    #explorer-toggle {
+    #explorer-toggle,
+    #editing-toggle {
       display: flex;
       align-items: center;
       gap: 0.5rem;
@@ -243,14 +252,17 @@
       transition: color 0.15s;
     }
 
-    #explorer-toggle:hover { color: #e6edf3; }
+    #explorer-toggle:hover,
+    #editing-toggle:hover { color: #e6edf3; }
 
-    #explorer-toggle .toggle-icon {
+    #explorer-toggle .toggle-icon,
+    #editing-toggle .toggle-icon {
       font-size: 0.65rem;
       transition: transform 0.2s;
     }
 
-    #explorer-toggle.open .toggle-icon { transform: rotate(90deg); }
+    #explorer-toggle.open .toggle-icon,
+    #editing-toggle.open .toggle-icon { transform: rotate(90deg); }
 
     /* ── Chat ───────────────────────────────────────────── */
     #chat {
@@ -457,10 +469,12 @@
       font-family: "SFMono-Regular", Consolas, monospace;
       font-size: 0.7rem;
       word-break: break-all;
+      word-spacing: 0.15em;
       background: #0d1117;
       border-radius: 6px;
       padding: 0.35rem 0.55rem;
-      line-height: 1.5;
+      line-height: 1.8;
+      letter-spacing: 0.04em;
     }
 
     .compare-seq .nt-changed { color: #f0883e; font-weight: 700; }
@@ -716,6 +730,52 @@
   </div>
 </div>
 
+<!-- Gene Editing Explorer toggle bar -->
+<div id="editing-toggle" onclick="toggleEditing()">
+  <span class="toggle-icon">▶</span>
+  <strong>Gene Editing Explorer</strong>
+  <span style="color:#8b949e;font-size:0.75rem">— see how gene editing tools modify DNA</span>
+</div>
+
+<!-- Gene Editing Explorer panel -->
+<div id="editing-explorer" class="collapsed">
+  <div class="explorer-inner">
+
+    <div>
+      <div class="explorer-section-label">1 · Select an editing technique</div>
+      <div class="gene-chips" id="edit-chips">
+        <span class="chip" onclick="selectEdit(this, 'crispr_nhej')">CRISPR-Cas9 (cut)</span>
+        <span class="chip" onclick="selectEdit(this, 'crispr_hdr')">CRISPR-Cas9 (repair)</span>
+        <span class="chip" onclick="selectEdit(this, 'base_edit_cbe')">Base Edit C→T</span>
+        <span class="chip" onclick="selectEdit(this, 'base_edit_abe')">Base Edit A→G</span>
+        <span class="chip" onclick="selectEdit(this, 'prime_editing')">Prime Editing</span>
+      </div>
+      <div class="info-card" id="edit-info-card" style="margin-top:0.6rem"></div>
+    </div>
+
+    <div>
+      <div class="explorer-section-label">2 · Select a gene to edit</div>
+      <div class="gene-chips" id="edit-gene-chips">
+        <span class="chip" onclick="selectEditGene(this, 'BRCA1')">BRCA1</span>
+        <span class="chip" onclick="selectEditGene(this, 'BRCA2')">BRCA2</span>
+        <span class="chip" onclick="selectEditGene(this, 'TP53')">TP53</span>
+        <span class="chip" onclick="selectEditGene(this, 'EGFR')">EGFR</span>
+        <span class="chip" onclick="selectEditGene(this, 'KRAS')">KRAS</span>
+        <span class="chip" onclick="selectEditGene(this, 'PTEN')">PTEN</span>
+        <span class="chip" onclick="selectEditGene(this, 'MYC')">MYC</span>
+        <span class="chip" onclick="selectEditGene(this, 'APC')">APC</span>
+      </div>
+      <div class="info-card" id="edit-gene-info-card" style="margin-top:0.6rem"></div>
+    </div>
+
+    <div class="explorer-actions">
+      <button id="edit-btn" disabled onclick="runEdit()">Simulate edit</button>
+      <span class="explorer-hint" id="edit-hint">Select a technique and gene above</span>
+    </div>
+
+  </div>
+</div>
+
 <div id="chat"></div>
 
 <div class="suggestions" id="suggestions">
@@ -873,6 +933,358 @@
   };
 
   // ── Explorer toggle ──────────────────────────────────────
+  // ── Gene Editing data ────────────────────────────────────
+  const EDIT_INFO = {
+    crispr_nhej: {
+      icon: "✂️",
+      label: "CRISPR-Cas9 (cut & disrupt)",
+      what: "A guide RNA acts as a GPS, directing the Cas9 protein to a precise location in the genome. Cas9 then cuts through both DNA strands. The cell repairs the break quickly but imprecisely — often adding or removing a letter, which disables the gene.",
+      how: "Think of Cas9 as molecular scissors with a built-in sat-nav. Once the guide RNA finds its match, the scissors snip. The cell panics and stitches it back together — but usually makes a small mistake that scrambles the gene.",
+      applications: ["Disabling cancer-driving oncogenes", "Treating sickle cell disease", "Research: knocking out genes to study their function"],
+      risks: "The repair error is unpredictable. Off-target cuts can accidentally disrupt other genes nearby.",
+      therapy_direction: "disruptive",
+    },
+    crispr_hdr: {
+      icon: "🔧",
+      label: "CRISPR-Cas9 (precision repair)",
+      what: "Same as above, but a repair template is supplied alongside the cut. The cell uses this template for precise repair (HDR), allowing exact corrections — swapping a faulty sequence for the correct one.",
+      how: "After Cas9 cuts, scientists hand the cell a 'reference copy' of the correct DNA. The cell uses it like a cheat sheet to stitch the break back together accurately — fixing the mutation rather than scrambling it.",
+      applications: ["Correcting BRCA1/BRCA2 mutations", "Fixing the sickle cell mutation", "Targeted gene therapy trials"],
+      risks: "HDR only works efficiently in dividing cells. Much less efficient than NHEJ — most cells still repair incorrectly. Off-target edits remain a risk.",
+      therapy_direction: "corrective",
+    },
+    base_edit_cbe: {
+      icon: "🔵",
+      label: "Base Editing — C to T",
+      what: "Cytosine Base Editors (CBEs) convert a single C (cytosine) DNA letter to T (thymine) without ever cutting both DNA strands. It is chemical rewriting, not scissors.",
+      how: "A 'dead' Cas9 parks itself at the target location without cutting. An enzyme attached to its back then reaches in and chemically rewrites the C as a T — like erasing one pencil mark and writing another, without tearing the page.",
+      applications: ["Fixing C-to-T disease mutations (e.g. some TP53 variants)", "Lowering bad cholesterol by editing PCSK9", "Treating rare inherited diseases"],
+      risks: "Can only convert C to T — useless for other mutation types. Nearby C letters can also get accidentally converted ('bystander edits').",
+      therapy_direction: "corrective",
+    },
+    base_edit_abe: {
+      icon: "🟠",
+      label: "Base Editing — A to G",
+      what: "Adenine Base Editors (ABEs) convert a single A (adenine) to G (guanine) — fixing the most common class of disease-causing point mutations without any double-strand break.",
+      how: "Similar to CBE: a deaminase enzyme chemically modifies A into a molecule the cell reads as G. No scissors, no double-strand break — safer and more precise than cutting.",
+      applications: ["Correcting A-to-G mutations in cancer genes", "Treating progeria (accelerated aging disease)", "Modelling mutations in research"],
+      risks: "Limited to A-to-G conversions only. Bystander edits possible at nearby A positions.",
+      therapy_direction: "corrective",
+    },
+    prime_editing: {
+      icon: "🖊️",
+      label: "Prime Editing",
+      what: "Prime editing is like 'find and replace' for DNA. It can make almost any edit — substitutions, small insertions, deletions — without cutting both strands and without needing a separate repair template.",
+      how: "The prime editor protein nicks just one DNA strand. A special guide (pegRNA) then acts as both the GPS and the instruction manual, writing the new sequence directly into the nick. Think of it as a very precise text editor for the genome.",
+      applications: ["Correcting almost any mutation type", "Treating sickle cell, Tay-Sachs, and other genetic diseases", "The most versatile editing tool currently available"],
+      risks: "The prime editor molecule is large — harder to deliver into cells. Efficiency is lower than CRISPR in some tissues. Still in early clinical stages.",
+      therapy_direction: "corrective",
+    },
+  };
+
+  let selectedEditType = null;
+  let selectedEditGene = null;
+
+  // Which genes make sense for each editing technique, and why.
+  // level: "high" = commonly used / ideal target
+  //        "medium" = possible but less typical
+  //        "low" = rarely used / poor therapeutic rationale
+  const EDIT_GENE_RELEVANCE = {
+    crispr_nhej: {
+      KRAS:  { level: "high",   reason: "KRAS is an oncogene — disabling it can stop cancer cells from receiving uncontrolled growth signals. A key CRISPR research target in pancreatic and lung cancer." },
+      EGFR:  { level: "high",   reason: "EGFR drives uncontrolled growth when mutated. Knocking it out with CRISPR is an active strategy in lung cancer research." },
+      MYC:   { level: "high",   reason: "MYC is a master growth accelerator that is overactive in many cancers. Disrupting it is a major CRISPR research goal, though difficult to target precisely." },
+      APC:   { level: "medium", reason: "APC is a tumour suppressor, so disrupting it further is not therapeutic — but it is knocked out in research models to study colorectal cancer progression." },
+      TP53:  { level: "low",    reason: "TP53 is a tumour suppressor — cutting it with NHEJ would destroy the cell's main safety switch, making things worse. Not a therapeutic target for disruption." },
+      BRCA1: { level: "low",    reason: "BRCA1 is a DNA repair gene. Disabling it would increase genomic instability — the opposite of what is needed. BRCA1 mutations are corrected, not introduced." },
+      BRCA2: { level: "low",    reason: "Same as BRCA1 — a repair gene. Disrupting it further has no therapeutic rationale and would increase cancer risk." },
+      PTEN:  { level: "low",    reason: "PTEN acts as a growth brake. Cutting it with NHEJ would remove that brake, promoting uncontrolled growth — the last thing you want." },
+    },
+    crispr_hdr: {
+      BRCA1: { level: "high",   reason: "BRCA1 mutations directly cause hereditary breast and ovarian cancer. Precision HDR correction to restore the wild-type sequence is one of the most clinically relevant CRISPR applications." },
+      BRCA2: { level: "high",   reason: "Same as BRCA1 — restoring functional BRCA2 via HDR is a major goal of gene therapy research for hereditary cancer." },
+      TP53:  { level: "high",   reason: "TP53 is the most commonly mutated gene in cancer. Correcting specific TP53 mutations with HDR to restore its tumour-suppressing function is widely studied." },
+      PTEN:  { level: "high",   reason: "Restoring functional PTEN re-engages the growth brake in cells where it has been lost, making it a strong corrective target." },
+      APC:   { level: "medium", reason: "Correcting APC mutations could restore normal colon cell regulation, but its large size makes HDR delivery challenging." },
+      EGFR:  { level: "medium", reason: "Specific EGFR mutations (e.g. T790M drug-resistance) can be corrected with HDR to restore drug sensitivity in lung cancer treatment." },
+      KRAS:  { level: "medium", reason: "Correcting KRAS mutations back to wild-type is theoretically possible with HDR, but KRAS is notoriously difficult to target and re-activating normal RAS signalling is complex." },
+      MYC:   { level: "low",    reason: "MYC overactivation is usually caused by gene amplification or chromosomal rearrangements, not simple point mutations — making HDR correction impractical." },
+    },
+    base_edit_cbe: {
+      TP53:  { level: "high",   reason: "C-to-T transitions are the most common type of TP53 mutation. CBE base editing can directly correct many of these variants back to the wild-type sequence." },
+      BRCA1: { level: "high",   reason: "Several BRCA1 pathogenic variants are C-to-T substitutions that CBE can correct with high precision." },
+      BRCA2: { level: "high",   reason: "Same as BRCA1 — a significant fraction of BRCA2 disease variants are C-to-T changes, ideal targets for CBE." },
+      PTEN:  { level: "medium", reason: "Some PTEN loss-of-function mutations are C-to-T changes correctable by CBE, though fewer than in TP53 or BRCA genes." },
+      EGFR:  { level: "medium", reason: "The T790M drug-resistance mutation in EGFR is a C-to-T change — CBE has been explored to model and potentially revert this variant." },
+      APC:   { level: "medium", reason: "Some APC truncating mutations result from C-to-T changes, making a subset of cases theoretically correctable by CBE." },
+      KRAS:  { level: "low",    reason: "The most common KRAS mutations (G12D, G12V) are not simple C-to-T changes on the relevant strand — CBE is not the right tool here." },
+      MYC:   { level: "low",    reason: "MYC overactivation is driven by gene amplification, not correctable point mutations — CBE has no useful role here." },
+    },
+    base_edit_abe: {
+      BRCA1: { level: "high",   reason: "Several BRCA1 variants involve A-to-G corrections that ABE can make precisely, restoring function without a double-strand break." },
+      BRCA2: { level: "high",   reason: "A subset of pathogenic BRCA2 variants are addressable with A-to-G base editing using ABE." },
+      TP53:  { level: "high",   reason: "Some TP53 mutations are A-to-G changes — ABE can potentially correct these to restore the tumour-suppressor function." },
+      EGFR:  { level: "medium", reason: "Certain EGFR activating mutations can be modelled or reverted using ABE in research contexts." },
+      PTEN:  { level: "medium", reason: "Some PTEN inactivating variants are A-to-G substitutions addressable by ABE." },
+      APC:   { level: "medium", reason: "A fraction of APC mutations are A-to-G changes potentially correctable by ABE." },
+      KRAS:  { level: "low",    reason: "Common KRAS driver mutations (G12D, G12V) are not A-to-G changes — ABE is not appropriate here." },
+      MYC:   { level: "low",    reason: "MYC pathology is structural/amplification-based, not a point mutation correctable by ABE." },
+    },
+    prime_editing: {
+      BRCA1: { level: "high",   reason: "Prime editing can correct virtually any BRCA1 mutation type — insertions, deletions, or substitutions — making it the most versatile tool for BRCA1 repair." },
+      BRCA2: { level: "high",   reason: "Same as BRCA1 — prime editing's flexibility makes it ideal for the wide spectrum of BRCA2 pathogenic variants." },
+      KRAS:  { level: "high",   reason: "Prime editing can correct the G12D and G12V hotspot mutations in KRAS — something base editors cannot do — making it uniquely suited for KRAS correction." },
+      TP53:  { level: "high",   reason: "Prime editing can address almost any TP53 mutation, including those not reachable by base editors, and is a leading approach for TP53 restoration therapy." },
+      PTEN:  { level: "high",   reason: "Prime editing's ability to handle indels as well as substitutions makes it ideal for the diverse range of PTEN loss-of-function variants." },
+      EGFR:  { level: "medium", reason: "Drug-resistance mutations in EGFR (e.g. T790M, C797S) are well-suited to prime editing correction to restore drug sensitivity." },
+      APC:   { level: "medium", reason: "Prime editing can correct APC truncating mutations, including small deletions that are beyond the reach of base editors." },
+      MYC:   { level: "low",    reason: "MYC overactivation is structural — gene amplification or chromosomal translocation — not a point mutation. Prime editing cannot address structural genomic changes." },
+    },
+  };
+
+  const RELEVANCE_STYLE = {
+    high:   { border: "#3fb950", color: "#3fb950", bg: "#0e2a14", badge: "✓ Recommended" },
+    medium: { border: "#f0883e", color: "#f0883e", bg: "#1f1208", badge: "~ Possible" },
+    low:    { border: "#f85149", color: "#f85149", bg: "#1a0505", badge: "— Not typical" },
+  };
+
+  function toggleEditing() {
+    const panel  = document.getElementById("editing-explorer");
+    const toggle = document.getElementById("editing-toggle");
+    const open   = panel.classList.contains("open");
+    panel.classList.toggle("collapsed", open);
+    panel.classList.toggle("open", !open);
+    toggle.classList.toggle("open", !open);
+  }
+
+  function selectEdit(el, editType) {
+    document.querySelectorAll("#edit-chips .chip").forEach(c => c.classList.remove("selected-gene"));
+    el.classList.add("selected-gene");
+    selectedEditType = editType;
+    showEditInfo(editType);
+    updateGeneChipRelevance(editType);
+    // Re-show gene info if one is already selected so relevance reason updates
+    if (selectedEditGene) showEditGeneInfo(selectedEditGene);
+    updateEditBtn();
+  }
+
+  function updateGeneChipRelevance(editType) {
+    const relevanceMap = EDIT_GENE_RELEVANCE[editType] || {};
+    document.querySelectorAll("#edit-gene-chips .chip").forEach(chip => {
+      const gene = chip.textContent.trim();
+      const rel  = relevanceMap[gene];
+      // Reset inline styles first
+      chip.style.borderColor = "";
+      chip.style.color = "";
+      chip.style.background = "";
+      chip.removeAttribute("data-rel");
+      if (rel) {
+        const s = RELEVANCE_STYLE[rel.level];
+        chip.style.borderColor = s.border;
+        chip.style.color       = s.color;
+        chip.style.background  = s.bg;
+        chip.setAttribute("data-rel", rel.level);
+      }
+    });
+  }
+
+  function showEditInfo(editType) {
+    const card = document.getElementById("edit-info-card");
+    const e = EDIT_INFO[editType];
+    if (!e) { card.classList.remove("visible"); return; }
+
+    const appTags = e.applications.map(a => `<span class="cancer-tag" style="background:#0d1a2a;color:#79c0ff;border-color:#79c0ff44">${escHtml(a)}</span>`).join("");
+    const isCorrectve = e.therapy_direction === "corrective";
+
+    card.innerHTML = `
+      <div class="info-card-top">
+        <span class="info-icon">${e.icon}</span>
+        <div>
+          <div class="info-gene-name" style="color:#79c0ff">${escHtml(e.label)}</div>
+          <div class="info-role">${isCorrectve ? "Corrective editing" : "Disruptive editing"}</div>
+        </div>
+      </div>
+      <div class="info-what">${escHtml(e.what)}</div>
+      <div class="info-what" style="color:#8b949e;font-size:0.8rem"><strong style="color:#c9d1d9">How it works:</strong> ${escHtml(e.how)}</div>
+      <div class="info-risk" style="border-color:#f85149"><strong>Risks:</strong> ${escHtml(e.risks)}</div>
+      <div class="evo2-row-label" style="margin-top:0.4rem">Medical applications</div>
+      <div class="info-cancers">${appTags}</div>`;
+    card.classList.add("visible");
+  }
+
+  function selectEditGene(el, gene) {
+    document.querySelectorAll("#edit-gene-chips .chip").forEach(c => c.classList.remove("selected-gene"));
+    el.classList.add("selected-gene");
+    selectedEditGene = gene;
+    showEditGeneInfo(gene);
+    updateEditBtn();
+  }
+
+  function showEditGeneInfo(gene) {
+    const card = document.getElementById("edit-gene-info-card");
+    const g = GENE_INFO[gene];
+    if (!g) { card.classList.remove("visible"); return; }
+
+    const cancerTags = g.cancers.map(c => `<span class="cancer-tag">${escHtml(c)}</span>`).join("");
+
+    let relevanceHtml = "";
+    if (selectedEditType) {
+      const rel = (EDIT_GENE_RELEVANCE[selectedEditType] || {})[gene];
+      if (rel) {
+        const s = RELEVANCE_STYLE[rel.level];
+        relevanceHtml = `
+          <div style="border-left:3px solid ${s.border};padding-left:0.6rem;margin-top:0.2rem">
+            <span style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:${s.color}">${s.badge} for ${EDIT_INFO[selectedEditType].label}</span>
+            <div style="font-size:0.78rem;color:#c9d1d9;margin-top:0.15rem">${escHtml(rel.reason)}</div>
+          </div>`;
+      }
+    }
+
+    card.innerHTML = `
+      <div class="info-card-top">
+        <span class="info-icon">${g.icon}</span>
+        <div>
+          <div class="info-gene-name">${escHtml(gene)}</div>
+          <div class="info-role">${escHtml(g.role)}</div>
+        </div>
+      </div>
+      <div class="info-what">${escHtml(g.what)}</div>
+      ${relevanceHtml}
+      <div class="info-cancers" style="margin-top:0.3rem">${cancerTags}</div>`;
+    card.classList.add("visible");
+  }
+
+  function updateEditBtn() {
+    const ready = selectedEditType && selectedEditGene;
+    document.getElementById("edit-btn").disabled = !ready;
+    document.getElementById("edit-hint").textContent = ready
+      ? `Ready — will simulate ${EDIT_INFO[selectedEditType].label} on ${selectedEditGene}`
+      : "Select a technique and gene above";
+  }
+
+  async function runEdit() {
+    if (!selectedEditType || !selectedEditGene) return;
+    const btn = document.getElementById("edit-btn");
+    btn.disabled = true;
+
+    appendBubble(escHtml(`Simulate ${EDIT_INFO[selectedEditType].label} on ${selectedEditGene}`), "user");
+    const loadingBubble = appendBubble('<span class="spinner"></span>', "bot");
+
+    try {
+      const res = await fetch(`${API}/edit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ gene: selectedEditGene, edit_type: selectedEditType }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: res.statusText }));
+        throw new Error(err.detail || res.statusText);
+      }
+      const data = await res.json();
+      loadingBubble.innerHTML = renderEditComparison(data);
+    } catch (err) {
+      loadingBubble.innerHTML = `<span class="error">Error: ${escHtml(err.message)}</span>`;
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function renderEditComparison(d) {
+    const orig   = d.original;
+    const edited = d.edited;
+    const info   = EDIT_INFO[d.edit_type] || {};
+    const isCorrectve = info.therapy_direction === "corrective";
+
+    const origSeqHtml   = diffSeq(orig.sequence, edited.sequence, false);
+    const editedSeqHtml = diffSeq(orig.sequence, edited.sequence, true);
+
+    // Verdict
+    let verdictIcon, verdictCls, verdictText;
+    if (d.score_delta == null) {
+      verdictIcon = "❓"; verdictCls = "verdict-neutral";
+      verdictText = "Evo 2 score unavailable — restart the server and ensure NVIDIA_API_KEY is set.";
+    } else if (isCorrectve) {
+      if (d.score_delta > 0.3) {
+        verdictIcon = "✅"; verdictCls = "verdict-good";
+        verdictText = `Evo 2 sees the edited sequence as <strong>more natural</strong> than the original. This is a positive signal — the edit appears to make the DNA look healthier to the model.`;
+      } else if (d.score_delta > -0.3) {
+        verdictIcon = "🔍"; verdictCls = "verdict-neutral";
+        verdictText = `Evo 2 sees a <strong>minimal difference</strong> between the original and edited sequences. The edit may be functionally neutral, or the effect is too subtle for this short sequence.`;
+      } else {
+        verdictIcon = "⚠️"; verdictCls = "verdict-medium";
+        verdictText = `Despite being a corrective edit, Evo 2 scores the edited sequence <strong>lower</strong>. This could mean the specific position targeted doesn't match what the model expects, or the correction introduces a different kind of disruption.`;
+      }
+    } else {
+      // Disruptive edit (CRISPR NHEJ)
+      if (d.score_delta < -0.3) {
+        verdictIcon = "🎯"; verdictCls = "verdict-bad";
+        verdictText = `Evo 2 confirms the edit <strong>significantly disrupts</strong> the sequence. This is the intended effect of a disruptive CRISPR cut — disabling a gene by making it look abnormal.`;
+      } else {
+        verdictIcon = "🔍"; verdictCls = "verdict-neutral";
+        verdictText = `The disruption is <strong>subtle</strong> in this short sequence window. In the full gene context, a frameshift would scramble all downstream codons.`;
+      }
+    }
+
+    const sign = d.score_delta > 0 ? "+" : "";
+
+    return `
+      <div class="compare-card">
+
+        <div class="compare-header">
+          <span class="gene-name">${escHtml(d.gene)}</span>
+          <span class="mut-badge" style="color:#79c0ff;background:#0d1a2a;border-color:#79c0ff55">${escHtml(info.label || d.edit_type)}</span>
+          <span class="change-desc">${escHtml(d.change)}</span>
+        </div>
+
+        <div style="padding:0.5rem 1rem;font-size:0.78rem;color:#8b949e;border-bottom:1px solid #21262d;">
+          <strong style="color:#c9d1d9">What happened:</strong> ${escHtml(d.edit_label)}
+        </div>
+
+        <div class="evo2-explainer">
+          <div class="evo2-explainer-title">How Evo 2 evaluated this edit</div>
+          <div class="evo2-explainer-body">
+            Evo 2 scored the <strong>original</strong> gene sequence and the <strong>edited</strong> sequence separately.
+            A <strong>higher score</strong> (closer to 0) means the sequence looks more like natural DNA.
+            For <em>corrective</em> edits, we expect the score to rise. For <em>disruptive</em> edits (like CRISPR NHEJ), we expect it to fall.
+          </div>
+        </div>
+
+        <div class="seq-legend">
+          <div class="seq-legend-item"><div class="legend-dot" style="background:#79c0ff"></div>Unchanged</div>
+          <div class="seq-legend-item"><div class="legend-dot" style="background:#f0883e"></div>Edited / inserted</div>
+          <div class="seq-legend-item"><div class="legend-dot" style="background:#f85149;opacity:0.6"></div>Deleted</div>
+        </div>
+
+        <div class="compare-body">
+          <div class="compare-col original">
+            <div class="compare-col-title">Before editing</div>
+            <div class="compare-seq">${origSeqHtml}</div>
+            ${scoreBlock(orig, "original")}
+          </div>
+          <div class="compare-col mutated">
+            <div class="compare-col-title">After editing</div>
+            <div class="compare-seq">${editedSeqHtml}</div>
+            ${scoreBlock(edited, "mutated")}
+          </div>
+        </div>
+
+        ${d.score_delta != null ? `
+        <div class="compare-delta">
+          <span class="delta-label">Score change after edit:</span>
+          <span class="delta-value ${d.score_delta > 0.3 ? "better" : d.score_delta < -0.3 ? "worse" : "neutral"}">
+            ${sign}${escHtml(String(d.score_delta))}
+          </span>
+          <span class="delta-interp" style="font-size:0.72rem">(${d.score_delta >= 0 ? "improvement" : "disruption"} in sequence naturalness)</span>
+        </div>` : ""}
+
+        <div class="verdict-banner ${verdictCls}">
+          <span class="verdict-icon">${verdictIcon}</span>
+          <span>${verdictText}</span>
+        </div>
+
+      </div>`;
+  }
+
   function toggleExplorer() {
     const panel  = document.getElementById("explorer");
     const toggle = document.getElementById("explorer-toggle");
@@ -1142,14 +1554,15 @@
   // Highlight positions that differ between original and mutated sequences.
   // showMutant=true  → colour the mutated side (insertions orange, deletions shown as gap)
   // showMutant=false → colour the original side (changed positions orange)
+  // Inserts a hair-space every 3 nucleotides (codon boundary) for readability.
   function diffSeq(origSeq, mutSeq, showMutant) {
     const seq = showMutant ? mutSeq : origSeq;
     const min = Math.min(origSeq.length, mutSeq.length);
     let html = "";
     for (let i = 0; i < seq.length; i++) {
+      if (i > 0 && i % 3 === 0) html += "<wbr>&#8202;";  // codon boundary hair-space
       const nt = escHtml(seq[i]);
       if (i >= min) {
-        // Extra nucleotides beyond the shorter sequence (insertion side)
         html += showMutant
           ? `<span class="nt-changed">${nt}</span>`
           : `<span class="nt-deleted">${nt}</span>`;
