@@ -32,6 +32,227 @@
 
     header span { font-size: 0.85rem; color: #8b949e; }
 
+    /* ── Gene Explorer panel ───────────────────────────── */
+    #explorer {
+      border-bottom: 1px solid #21262d;
+      background: #0d1117;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    #explorer.collapsed { max-height: 0; overflow: hidden; }
+    #explorer.open      { max-height: 420px; overflow-y: auto; }
+
+    .explorer-inner {
+      padding: 1rem 1.5rem 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .explorer-section-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #8b949e;
+      margin-bottom: 0.3rem;
+    }
+
+    .gene-chips, .mutation-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .chip {
+      border-radius: 20px;
+      padding: 0.3rem 0.75rem;
+      font-size: 0.8rem;
+      cursor: pointer;
+      border: 1px solid #30363d;
+      background: #161b22;
+      color: #8b949e;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+      user-select: none;
+    }
+
+    .chip:hover { border-color: #58a6ff; color: #58a6ff; }
+
+    .chip.selected-gene {
+      border-color: #d2a8ff;
+      color: #d2a8ff;
+      background: #1c1330;
+    }
+
+    .chip.selected-mut {
+      border-color: #f0883e;
+      color: #f0883e;
+      background: #1f1208;
+    }
+
+    /* gene + mutation info cards inside the explorer */
+    .info-card {
+      display: none;
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      gap: 0.35rem;
+      flex-direction: column;
+      animation: fadeIn 0.15s ease;
+    }
+    .info-card.visible { display: flex; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+    .info-card-top {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .info-icon { font-size: 1.2rem; }
+
+    .info-gene-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #d2a8ff;
+    }
+
+    .info-role {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #8b949e;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .info-what {
+      font-size: 0.85rem;
+      color: #c9d1d9;
+      line-height: 1.55;
+    }
+
+    .info-risk {
+      font-size: 0.82rem;
+      color: #e6edf3;
+      line-height: 1.5;
+      border-left: 3px solid #f85149;
+      padding-left: 0.6rem;
+    }
+
+    .info-cancers {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: 0.1rem;
+    }
+
+    .cancer-tag {
+      font-size: 0.7rem;
+      background: #1f0d0d;
+      color: #f85149;
+      border: 1px solid #f8514944;
+      border-radius: 4px;
+      padding: 0.1rem 0.45rem;
+    }
+
+    .info-mut-top {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .info-mut-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #f0883e;
+    }
+
+    .causes-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-top: 0.15rem;
+    }
+
+    .cause-item {
+      display: flex;
+      gap: 0.5rem;
+      align-items: flex-start;
+      background: #0d1117;
+      border-radius: 6px;
+      padding: 0.4rem 0.6rem;
+    }
+
+    .cause-icon { font-size: 1rem; flex-shrink: 0; line-height: 1.4; }
+
+    .cause-text { display: flex; flex-direction: column; gap: 0.1rem; }
+
+    .cause-factor {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #e6edf3;
+    }
+
+    .cause-detail {
+      font-size: 0.75rem;
+      color: #8b949e;
+      line-height: 1.45;
+    }
+
+    .explorer-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    #analyze-btn {
+      background: #1f6feb;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.45rem 1.1rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    #analyze-btn:hover  { background: #388bfd; }
+    #analyze-btn:disabled { background: #21262d; cursor: not-allowed; color: #8b949e; }
+
+    .explorer-hint {
+      font-size: 0.75rem;
+      color: #8b949e;
+    }
+
+    /* ── toggle bar ─────────────────────────────────────── */
+    #explorer-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.55rem 1.5rem;
+      border-bottom: 1px solid #21262d;
+      cursor: pointer;
+      font-size: 0.8rem;
+      color: #8b949e;
+      background: #0d1117;
+      user-select: none;
+      transition: color 0.15s;
+    }
+
+    #explorer-toggle:hover { color: #e6edf3; }
+
+    #explorer-toggle .toggle-icon {
+      font-size: 0.65rem;
+      transition: transform 0.2s;
+    }
+
+    #explorer-toggle.open .toggle-icon { transform: rotate(90deg); }
+
+    /* ── Chat ───────────────────────────────────────────── */
     #chat {
       flex: 1;
       overflow-y: auto;
@@ -42,7 +263,7 @@
     }
 
     .bubble {
-      max-width: 720px;
+      max-width: 760px;
       border-radius: 12px;
       padding: 0.85rem 1.1rem;
       line-height: 1.6;
@@ -93,17 +314,6 @@
       color: #c9d1d9;
     }
 
-    .evo2-badge {
-      display: inline-block;
-      margin-top: 0.6rem;
-      font-size: 0.75rem;
-      background: #0e4429;
-      color: #3fb950;
-      border: 1px solid #238636;
-      border-radius: 6px;
-      padding: 0.2rem 0.6rem;
-    }
-
     .gene-tag {
       display: inline-block;
       font-size: 0.75rem;
@@ -126,6 +336,294 @@
       display: inline-block;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Evo 2 info card (chat responses) ───────────────── */
+    .evo2-card {
+      margin-top: 0.9rem;
+      background: #0d1117;
+      border: 1px solid #238636;
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+
+    .evo2-card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #3fb950;
+    }
+
+    .evo2-row { display: flex; flex-direction: column; gap: 0.15rem; }
+
+    .evo2-row-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #8b949e;
+    }
+
+    .evo2-row-value { font-size: 0.82rem; color: #e6edf3; }
+
+    .evo2-sequence {
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.75rem;
+      color: #79c0ff;
+      word-break: break-all;
+      background: #161b22;
+      border-radius: 6px;
+      padding: 0.35rem 0.6rem;
+    }
+
+    .evo2-score {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .evo2-score-value { font-size: 1rem; font-weight: 700; color: #f0883e; }
+    .evo2-score-hint  { font-size: 0.7rem; color: #8b949e; }
+
+    /* ── Mutation comparison card ───────────────────────── */
+    .compare-card {
+      margin-top: 0.5rem;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .compare-header {
+      background: #161b22;
+      padding: 0.65rem 1rem;
+      display: flex;
+      align-items: baseline;
+      gap: 0.75rem;
+    }
+
+    .compare-header .gene-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #d2a8ff;
+    }
+
+    .compare-header .mut-badge {
+      font-size: 0.75rem;
+      background: #1f1208;
+      color: #f0883e;
+      border: 1px solid #f0883e55;
+      border-radius: 6px;
+      padding: 0.15rem 0.55rem;
+    }
+
+    .compare-header .change-desc {
+      font-size: 0.78rem;
+      color: #8b949e;
+      margin-left: auto;
+    }
+
+    .compare-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+    }
+
+    .compare-col {
+      padding: 0.8rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .compare-col.original { border-right: 1px solid #21262d; }
+
+    .compare-col-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    .compare-col.original .compare-col-title { color: #3fb950; }
+    .compare-col.mutated  .compare-col-title { color: #f85149; }
+
+    .compare-seq {
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.7rem;
+      word-break: break-all;
+      background: #0d1117;
+      border-radius: 6px;
+      padding: 0.35rem 0.55rem;
+      line-height: 1.5;
+    }
+
+    .compare-seq .nt-changed { color: #f0883e; font-weight: 700; }
+    .compare-seq .nt-deleted { color: #f85149; text-decoration: line-through; opacity: 0.7; }
+    .compare-seq .nt-normal  { color: #79c0ff; }
+
+    .compare-score-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .compare-score-num {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .compare-col.original .compare-score-num { color: #3fb950; }
+    .compare-col.mutated  .compare-score-num { color: #f85149; }
+
+    .compare-effect {
+      font-size: 0.78rem;
+      color: #c9d1d9;
+    }
+
+    .compare-delta {
+      background: #161b22;
+      border-top: 1px solid #21262d;
+      padding: 0.6rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.82rem;
+    }
+
+    .delta-label { color: #8b949e; }
+
+    .delta-value {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .delta-value.worse  { color: #f85149; }
+    .delta-value.better { color: #3fb950; }
+    .delta-value.neutral{ color: #8b949e; }
+
+    .delta-interp { color: #c9d1d9; }
+
+    /* ── Evo 2 explainer block ──────────────────────────── */
+    .evo2-explainer {
+      background: #0d1117;
+      border-bottom: 1px solid #21262d;
+      padding: 0.65rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .evo2-explainer-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #3fb950;
+    }
+
+    .evo2-explainer-body {
+      font-size: 0.78rem;
+      color: #8b949e;
+      line-height: 1.5;
+    }
+
+    /* ── Score meter ────────────────────────────────────── */
+    .score-meter-wrap {
+      margin-top: 0.3rem;
+    }
+
+    .score-meter-track {
+      height: 6px;
+      background: #21262d;
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .score-meter-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.4s ease;
+    }
+
+    .score-meter-fill.good    { background: #3fb950; }
+    .score-meter-fill.medium  { background: #f0883e; }
+    .score-meter-fill.bad     { background: #f85149; }
+
+    .score-meter-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.62rem;
+      color: #8b949e;
+      margin-top: 0.2rem;
+    }
+
+    /* ── Sequence legend ────────────────────────────────── */
+    .seq-legend {
+      display: flex;
+      gap: 1rem;
+      padding: 0.4rem 1rem;
+      border-bottom: 1px solid #21262d;
+      background: #0d1117;
+    }
+
+    .seq-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.7rem;
+      color: #8b949e;
+    }
+
+    .legend-dot {
+      width: 8px; height: 8px;
+      border-radius: 2px;
+    }
+
+    /* ── Verdict banner ─────────────────────────────────── */
+    .verdict-banner {
+      padding: 0.65rem 1rem;
+      border-top: 1px solid #21262d;
+      font-size: 0.82rem;
+      line-height: 1.55;
+      display: flex;
+      gap: 0.6rem;
+      align-items: flex-start;
+    }
+
+    .verdict-banner.verdict-bad    { background: #1a0a0a; color: #f85149; }
+    .verdict-banner.verdict-medium { background: #1a1000; color: #f0883e; }
+    .verdict-banner.verdict-good   { background: #0a1a0a; color: #3fb950; }
+    .verdict-banner.verdict-neutral{ background: #161b22; color: #c9d1d9; }
+
+    .verdict-icon { font-size: 1rem; flex-shrink: 0; }
+
+    /* ── Suggestions + input ────────────────────────────── */
+    .suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 0 1.5rem 1rem;
+    }
+
+    .suggestion-chip {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 20px;
+      color: #8b949e;
+      font-size: 0.8rem;
+      padding: 0.3rem 0.8rem;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .suggestion-chip:hover { border-color: #58a6ff; color: #58a6ff; }
 
     #input-row {
       border-top: 1px solid #21262d;
@@ -160,28 +658,8 @@
       transition: background 0.15s;
     }
 
-    button#send-btn:hover { background: #2ea043; }
+    button#send-btn:hover    { background: #2ea043; }
     button#send-btn:disabled { background: #21262d; cursor: not-allowed; }
-
-    .suggestions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      padding: 0 1.5rem 1rem;
-    }
-
-    .suggestion-chip {
-      background: #161b22;
-      border: 1px solid #30363d;
-      border-radius: 20px;
-      color: #8b949e;
-      font-size: 0.8rem;
-      padding: 0.3rem 0.8rem;
-      cursor: pointer;
-      transition: border-color 0.15s, color 0.15s;
-    }
-
-    .suggestion-chip:hover { border-color: #58a6ff; color: #58a6ff; }
   </style>
 </head>
 <body>
@@ -191,6 +669,52 @@
   <h1>BioReason-lite</h1>
   <span>Chat with DNA · powered by Evo 2 + LLM</span>
 </header>
+
+<!-- Gene Explorer toggle bar -->
+<div id="explorer-toggle" class="open" onclick="toggleExplorer()">
+  <span class="toggle-icon">▶</span>
+  <strong>Gene Explorer</strong>
+  <span style="color:#8b949e;font-size:0.75rem">— pick a gene + mutation to see its impact</span>
+</div>
+
+<!-- Gene Explorer panel -->
+<div id="explorer" class="open">
+  <div class="explorer-inner">
+
+    <div>
+      <div class="explorer-section-label">1 · Select a gene</div>
+      <div class="gene-chips" id="gene-chips">
+        <span class="chip" onclick="selectGene(this, 'BRCA1')">BRCA1</span>
+        <span class="chip" onclick="selectGene(this, 'BRCA2')">BRCA2</span>
+        <span class="chip" onclick="selectGene(this, 'TP53')">TP53</span>
+        <span class="chip" onclick="selectGene(this, 'EGFR')">EGFR</span>
+        <span class="chip" onclick="selectGene(this, 'KRAS')">KRAS</span>
+        <span class="chip" onclick="selectGene(this, 'PTEN')">PTEN</span>
+        <span class="chip" onclick="selectGene(this, 'MYC')">MYC</span>
+        <span class="chip" onclick="selectGene(this, 'APC')">APC</span>
+      </div>
+      <div class="info-card" id="gene-info-card" style="margin-top:0.6rem"></div>
+    </div>
+
+    <div>
+      <div class="explorer-section-label">2 · Select a mutation type</div>
+      <div class="mutation-chips" id="mutation-chips">
+        <span class="chip" onclick="selectMut(this, 'missense')">Missense</span>
+        <span class="chip" onclick="selectMut(this, 'nonsense')">Nonsense</span>
+        <span class="chip" onclick="selectMut(this, 'frameshift_ins')">Frameshift (insertion)</span>
+        <span class="chip" onclick="selectMut(this, 'frameshift_del')">Frameshift (deletion)</span>
+        <span class="chip" onclick="selectMut(this, 'deletion')">Large deletion</span>
+      </div>
+      <div class="info-card" id="mut-info-card" style="margin-top:0.6rem"></div>
+    </div>
+
+    <div class="explorer-actions">
+      <button id="analyze-btn" disabled onclick="runAnalysis()">Analyze impact</button>
+      <span class="explorer-hint" id="explorer-hint">Select a gene and mutation type above</span>
+    </div>
+
+  </div>
+</div>
 
 <div id="chat"></div>
 
@@ -209,14 +733,436 @@
 <script>
   const API = "http://localhost:8000";
 
-  const chatEl = document.getElementById("chat");
-  const inputEl = document.getElementById("user-input");
-  const sendBtn = document.getElementById("send-btn");
+  const chatEl    = document.getElementById("chat");
+  const inputEl   = document.getElementById("user-input");
+  const sendBtn   = document.getElementById("send-btn");
+  const analyzeBtn = document.getElementById("analyze-btn");
+  const hintEl    = document.getElementById("explorer-hint");
+
+  let selectedGene = null;
+  let selectedMut  = null;
 
   inputEl.addEventListener("keydown", e => {
     if (e.key === "Enter") sendMessage();
   });
 
+  // ── Gene data ────────────────────────────────────────────
+  const GENE_INFO = {
+    BRCA1: {
+      icon: "🔧",
+      role: "DNA Repair Supervisor",
+      what: "Detects breaks in your DNA and coordinates repairs before a cell divides — like a quality-control inspector that catches errors before they become permanent.",
+      risk: "Mutations disable this repair system, letting damaged DNA pile up. This raises lifetime breast cancer risk to ~70% and ovarian cancer risk to ~44%.",
+      cancers: ["Breast", "Ovarian", "Pancreatic"],
+    },
+    BRCA2: {
+      icon: "🔧",
+      role: "DNA Repair Partner",
+      what: "Works alongside BRCA1 to fix broken DNA strands using a precise copy-and-paste method. Without it, errors accumulate with every cell division.",
+      risk: "Loss of BRCA2 causes faulty DNA repair, raising breast cancer risk (~69%), ovarian (~17%), and also prostate and pancreatic cancer.",
+      cancers: ["Breast", "Ovarian", "Pancreatic", "Prostate"],
+    },
+    TP53: {
+      icon: "🛡️",
+      role: "Guardian of the Genome",
+      what: "The body's ultimate safety switch. When a cell's DNA is too damaged to fix, TP53 forces the cell to self-destruct rather than risk it becoming cancerous.",
+      risk: "Without TP53, damaged cells survive and keep dividing instead of dying — a direct pathway to cancer. Mutated in over 50% of all human cancers.",
+      cancers: ["Lung", "Colon", "Breast", "Liver", "Many others"],
+    },
+    EGFR: {
+      icon: "📡",
+      role: "Cell Growth Antenna",
+      what: "Sits on the outer surface of cells and picks up 'grow and divide' signals. Normally it turns on when needed, then shuts off — like a light switch.",
+      risk: "Mutations lock EGFR permanently 'on', causing cells to divide non-stop without waiting for a signal. A key driver of non-small-cell lung cancer.",
+      cancers: ["Lung", "Head & Neck", "Colorectal"],
+    },
+    KRAS: {
+      icon: "⚡",
+      role: "Growth Signal Relay",
+      what: "Passes 'grow' messages from the cell surface to the nucleus. Normally it activates briefly then turns itself off — one of the most commonly mutated genes in cancer.",
+      risk: "Mutations freeze KRAS permanently 'on', so the cell never stops receiving the grow signal — fuelling rapid, unstoppable division.",
+      cancers: ["Pancreatic", "Colon", "Lung"],
+    },
+    PTEN: {
+      icon: "🛑",
+      role: "Cell Growth Brake",
+      what: "Slows down one of the main cellular highways for growth and survival by removing chemical 'go' signals, telling the cell to stop dividing.",
+      risk: "When PTEN is lost, the brakes fail entirely. Cells receive constant survival and growth signals, leading to uncontrolled proliferation.",
+      cancers: ["Breast", "Prostate", "Endometrial", "Brain"],
+    },
+    MYC: {
+      icon: "🚀",
+      role: "Master Growth Accelerator",
+      what: "Switches on hundreds of genes at once — genes involved in cell growth, metabolism, and division. In a healthy cell it is tightly controlled and short-lived.",
+      risk: "When MYC is overactivated or amplified, it floods the cell with growth signals, pushing normal cells towards rapid, unregulated division.",
+      cancers: ["Lymphoma", "Breast", "Lung", "Colon"],
+    },
+    APC: {
+      icon: "🧹",
+      role: "Colon Cell Gatekeeper",
+      what: "Controls how often cells in the colon lining divide by tagging and destroying a growth-promoting protein called beta-catenin — keeping the colon from overproducing cells.",
+      risk: "Without APC, beta-catenin accumulates and constantly signals cells to grow, causing polyps that can progress to colorectal cancer.",
+      cancers: ["Colorectal", "Stomach", "Pancreatic"],
+    },
+  };
+
+  // ── Mutation data ────────────────────────────────────────
+  const MUT_INFO = {
+    missense: {
+      icon: "🔄",
+      label: "Missense",
+      what: "One DNA 'letter' is swapped for a different one. The gene still produces a protein, but with one wrong amino acid — like a typo in a recipe that changes the dish.",
+      impact: "Can range from harmless to severely damaging, depending on which amino acid changes and where it sits in the protein.",
+      causes: [
+        { icon: "☀️", factor: "UV radiation", detail: "Sunlight and tanning beds cause adjacent DNA letters to fuse, forcing the cell to substitute a wrong letter when copying the DNA." },
+        { icon: "🚬", factor: "Tobacco smoke", detail: "Chemicals in smoke (PAHs, nitrosamines) stick to DNA bases and chemically alter them, causing the wrong letter to be read during replication." },
+        { icon: "🍺", factor: "Alcohol", detail: "Alcohol breaks down into acetaldehyde in the body, a chemical that directly damages DNA bases and triggers substitution errors." },
+        { icon: "🏭", factor: "Air pollution & industrial chemicals", detail: "Benzene, formaldehyde, and exhaust fumes can chemically modify DNA bases, leading to substitution mutations." },
+        { icon: "🎲", factor: "Random replication errors", detail: "Every time a cell divides it copies ~3 billion DNA letters. Occasional slip-ups happen naturally — about 1 error per billion letters." },
+      ],
+    },
+    nonsense: {
+      icon: "✂️",
+      label: "Nonsense",
+      what: "A DNA change creates a premature 'stop' signal mid-gene. The cell stops building the protein early, producing a shortened, non-functional fragment.",
+      impact: "Usually severely damaging — the truncated protein almost always cannot perform its job.",
+      causes: [
+        { icon: "🚬", factor: "Tobacco smoke", detail: "One of the strongest chemical mutagens known — tobacco-specific nitrosamines are particularly good at creating the exact single-letter changes that produce premature stop codons." },
+        { icon: "☀️", factor: "UV radiation", detail: "UV damage can produce base substitutions that land on a codon and convert it to a stop signal, cutting the protein short." },
+        { icon: "⚡", factor: "Ionising radiation", detail: "X-rays, CT scans, and radon gas in homes can knock electrons off DNA bases, causing chemical changes that sometimes produce stop codons." },
+        { icon: "🎲", factor: "Spontaneous deamination", detail: "A natural chemical reaction where a DNA base slowly loses an amino group over time, converting it to a different base — one of the most common sources of nonsense mutations in ageing cells." },
+      ],
+    },
+    frameshift_ins: {
+      icon: "➕",
+      label: "Frameshift (insertion)",
+      what: "An extra DNA letter is inserted, shifting how every subsequent letter is read — like adding an extra space in a sentence so the rest becomes garbled.",
+      impact: "Almost always very damaging — every amino acid after the insertion is wrong, producing a non-functional protein.",
+      causes: [
+        { icon: "🔁", factor: "Replication slippage", detail: "During DNA copying, the replication machinery can slip on repetitive sequences (e.g. AAAA…) and accidentally insert an extra letter — a natural and unavoidable error." },
+        { icon: "🧪", factor: "Intercalating chemicals", detail: "Some chemicals (found in certain industrial dyes, aflatoxin in mouldy food) squeeze between DNA strands and trick the copying machinery into inserting an extra letter." },
+        { icon: "🍟", factor: "Acrylamide in burnt food", detail: "Overcooked starchy foods (chips, toast, coffee) produce acrylamide, which can react with DNA and disrupt the replication process." },
+        { icon: "🍺", factor: "Alcohol", detail: "Impairs the cell's DNA repair machinery, making it harder to correct insertion errors before they become permanent." },
+      ],
+    },
+    frameshift_del: {
+      icon: "➖",
+      label: "Frameshift (deletion)",
+      what: "One DNA letter is deleted, shifting how every subsequent letter is read — like removing a space so all the words after it get scrambled.",
+      impact: "Almost always very damaging — produces a completely different protein from the deletion point onward.",
+      causes: [
+        { icon: "☢️", factor: "Ionising radiation", detail: "X-rays, gamma rays, and radon gas break DNA strands. When the cell repairs these breaks, it sometimes loses a letter in the process — especially in repetitive DNA regions." },
+        { icon: "🚬", factor: "Free radicals from smoking", detail: "Smoke generates reactive oxygen species (ROS) that attack DNA and cause strand breaks, which can lead to deletions during repair." },
+        { icon: "🍺", factor: "Alcohol", detail: "Alcohol metabolism produces ROS and suppresses DNA repair enzymes, increasing the chance that deletion errors persist." },
+        { icon: "🔁", factor: "Replication slippage", detail: "The copying machinery can also skip a letter when reading repetitive DNA — especially in stretches like TTTTT or GCGCGC." },
+      ],
+    },
+    deletion: {
+      icon: "🗑️",
+      label: "Large deletion",
+      what: "A chunk of DNA is removed, wiping out several amino acids from the resulting protein — like cutting a paragraph out of a manual.",
+      impact: "Can disrupt the protein's shape or remove a critical functional region, often impairing or destroying its function.",
+      causes: [
+        { icon: "☢️", factor: "Ionising radiation", detail: "High-energy radiation (X-rays, CT scans, nuclear fallout, radon in homes) is the leading cause — it snaps both strands of the DNA double helix simultaneously, and imprecise repair can delete a sizeable chunk." },
+        { icon: "💊", factor: "Some chemotherapy drugs", detail: "Drugs that kill cancer cells work by breaking DNA — but they can occasionally cause secondary large deletions in healthy cells nearby, rarely triggering a new cancer years later." },
+        { icon: "🏭", factor: "Industrial chemicals (benzene)", detail: "Long-term exposure to benzene (in petrol, plastics manufacturing, rubber) damages chromosomes and is strongly linked to large deletions in blood-forming cells." },
+        { icon: "🦠", factor: "Viral infections (HPV, HBV)", detail: "Some viruses insert their own DNA into the human genome, and the disruption can cause the cell to delete surrounding human DNA during the integration process." },
+        { icon: "🔥", factor: "Chronic inflammation", detail: "Long-term inflammation (from obesity, inflammatory bowel disease, or chronic infection) generates reactive oxygen species that accumulate over years and can cause large-scale DNA damage." },
+      ],
+    },
+  };
+
+  // ── Explorer toggle ──────────────────────────────────────
+  function toggleExplorer() {
+    const panel  = document.getElementById("explorer");
+    const toggle = document.getElementById("explorer-toggle");
+    const open   = panel.classList.contains("open");
+    panel.classList.toggle("collapsed", open);
+    panel.classList.toggle("open", !open);
+    toggle.classList.toggle("open", !open);
+  }
+
+  // ── Gene / mutation selection ────────────────────────────
+  function selectGene(el, gene) {
+    document.querySelectorAll("#gene-chips .chip").forEach(c => c.classList.remove("selected-gene"));
+    el.classList.add("selected-gene");
+    selectedGene = gene;
+    showGeneInfo(gene);
+    updateAnalyzeBtn();
+  }
+
+  function showGeneInfo(gene) {
+    const card = document.getElementById("gene-info-card");
+    const g = GENE_INFO[gene];
+    if (!g) { card.classList.remove("visible"); return; }
+
+    const cancerTags = g.cancers.map(c => `<span class="cancer-tag">${escHtml(c)}</span>`).join("");
+    card.innerHTML = `
+      <div class="info-card-top">
+        <span class="info-icon">${g.icon}</span>
+        <div>
+          <div class="info-gene-name">${escHtml(gene)}</div>
+          <div class="info-role">${escHtml(g.role)}</div>
+        </div>
+      </div>
+      <div class="info-what">${escHtml(g.what)}</div>
+      <div class="info-risk">${escHtml(g.risk)}</div>
+      <div class="info-cancers">${cancerTags}</div>`;
+    card.classList.add("visible");
+  }
+
+  function selectMut(el, mut) {
+    document.querySelectorAll("#mutation-chips .chip").forEach(c => c.classList.remove("selected-mut"));
+    el.classList.add("selected-mut");
+    selectedMut = mut;
+    showMutInfo(mut);
+    updateAnalyzeBtn();
+  }
+
+  function showMutInfo(mut) {
+    const card = document.getElementById("mut-info-card");
+    const m = MUT_INFO[mut];
+    if (!m) { card.classList.remove("visible"); return; }
+
+    const causesHtml = m.causes.map(c => `
+      <div class="cause-item">
+        <span class="cause-icon">${c.icon}</span>
+        <div class="cause-text">
+          <div class="cause-factor">${escHtml(c.factor)}</div>
+          <div class="cause-detail">${escHtml(c.detail)}</div>
+        </div>
+      </div>`).join("");
+
+    card.innerHTML = `
+      <div class="info-mut-top">
+        <span class="info-icon">${m.icon}</span>
+        <div class="info-mut-name">${escHtml(m.label)}</div>
+      </div>
+      <div class="info-what">${escHtml(m.what)}</div>
+      <div class="info-risk" style="border-color:#f0883e">${escHtml(m.impact)}</div>
+      <div class="evo2-row-label" style="margin-top:0.4rem">What can cause this mutation?</div>
+      <div class="causes-list">${causesHtml}</div>`;
+    card.classList.add("visible");
+  }
+
+  function updateAnalyzeBtn() {
+    const ready = selectedGene && selectedMut;
+    analyzeBtn.disabled = !ready;
+    hintEl.textContent = ready
+      ? `Ready — will score ${selectedGene} with a ${mutLabel(selectedMut)} mutation`
+      : "Select a gene and mutation type above";
+  }
+
+  const MUT_LABELS = {
+    missense:       "missense",
+    nonsense:       "nonsense",
+    frameshift_ins: "frameshift (insertion)",
+    frameshift_del: "frameshift (deletion)",
+    deletion:       "large deletion",
+  };
+  function mutLabel(k) { return MUT_LABELS[k] || k; }
+
+  // ── Analyze ──────────────────────────────────────────────
+  async function runAnalysis() {
+    if (!selectedGene || !selectedMut) return;
+
+    analyzeBtn.disabled = true;
+
+    // User bubble
+    appendBubble(
+      escHtml(`Analyze ${selectedGene} — ${mutLabel(selectedMut)} mutation`),
+      "user"
+    );
+
+    const loadingBubble = appendBubble('<span class="spinner"></span>', "bot");
+
+    try {
+      const res = await fetch(`${API}/analyze`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ gene: selectedGene, mutation_type: selectedMut }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: res.statusText }));
+        throw new Error(err.detail || res.statusText);
+      }
+
+      const data = await res.json();
+      loadingBubble.innerHTML = renderComparison(data);
+    } catch (err) {
+      loadingBubble.innerHTML = `<span class="error">Error: ${escHtml(err.message)}</span>`;
+    } finally {
+      analyzeBtn.disabled = false;
+    }
+  }
+
+  // ── Render comparison card ───────────────────────────────
+
+  // Convert a log-prob score (typically -5 to 0) to a 0–100% meter value.
+  // -5 or below → 0%, 0 → 100%
+  function scoreToPct(score) {
+    if (score == null) return 0;
+    return Math.max(0, Math.min(100, ((score + 5) / 5) * 100));
+  }
+
+  function scoreMeterClass(score) {
+    if (score == null) return "bad";
+    if (score >= -0.5)  return "good";
+    if (score >= -1.5)  return "medium";
+    return "bad";
+  }
+
+  function renderComparison(d) {
+    const orig = d.original;
+    const mut  = d.mutated;
+
+    const origSeqHtml = diffSeq(orig.sequence, mut.sequence, false);
+    const mutSeqHtml  = diffSeq(orig.sequence, mut.sequence, true);
+
+    // Verdict
+    let verdictIcon = "❓", verdictCls = "verdict-neutral", verdictText = "";
+    if (d.score_delta != null) {
+      if (d.score_delta < -1) {
+        verdictIcon = "🚨"; verdictCls = "verdict-bad";
+        verdictText = `Evo 2 sees this ${escHtml(mutLabel(d.mutation_type))} mutation as <strong>likely damaging</strong>. The mutated sequence looks significantly less natural than the original — a drop this large typically means the protein will not fold or function correctly.`;
+      } else if (d.score_delta < -0.3) {
+        verdictIcon = "⚠️"; verdictCls = "verdict-medium";
+        verdictText = `Evo 2 sees this mutation as <strong>possibly damaging</strong>. The mutated sequence looks somewhat less natural. Whether this disrupts the protein depends on exactly where in the gene the change falls.`;
+      } else if (d.score_delta > 0.3) {
+        verdictIcon = "✅"; verdictCls = "verdict-good";
+        verdictText = `Evo 2 sees this mutation as <strong>likely tolerated</strong>. The mutated sequence scores similarly or better than the original — the change may not significantly affect protein function.`;
+      } else {
+        verdictIcon = "🔍"; verdictCls = "verdict-neutral";
+        verdictText = `Evo 2 sees a <strong>small difference</strong> between the original and mutated sequences. The impact of this mutation is uncertain from sequence alone.`;
+      }
+    }
+
+    const sign = d.score_delta > 0 ? "+" : "";
+
+    return `
+      <div class="compare-card">
+
+        <!-- Header: gene + mutation type + exact change -->
+        <div class="compare-header">
+          <span class="gene-name">${escHtml(d.gene)}</span>
+          <span class="mut-badge">${escHtml(mutLabel(d.mutation_type))}</span>
+          <span class="change-desc">${escHtml(d.change)}</span>
+        </div>
+
+        <!-- What this mutation type does -->
+        <div style="padding:0.5rem 1rem;font-size:0.78rem;color:#8b949e;border-bottom:1px solid #21262d;">
+          <strong style="color:#c9d1d9">What happened to the DNA:</strong> ${escHtml(d.mutation_label)}
+        </div>
+
+        <!-- How Evo 2 scored this -->
+        <div class="evo2-explainer">
+          <div class="evo2-explainer-title">How Evo 2 scored this</div>
+          <div class="evo2-explainer-body">
+            Evo 2 is a DNA language model trained on billions of real genome sequences. It assigns each sequence a <strong>naturalness score</strong> — how closely the sequence resembles DNA it has seen in living organisms.
+            Scores are expressed as <em>mean log probability</em>: <strong>closer to 0 = more natural</strong> (healthy), <strong>more negative = more unusual</strong> (potentially harmful).
+            We scored the original gene sequence and the mutated version separately, then compared the two.
+          </div>
+        </div>
+
+        <!-- Sequence legend -->
+        <div class="seq-legend">
+          <div class="seq-legend-item">
+            <div class="legend-dot" style="background:#79c0ff"></div>
+            Unchanged nucleotides
+          </div>
+          <div class="seq-legend-item">
+            <div class="legend-dot" style="background:#f0883e"></div>
+            Changed / inserted nucleotides
+          </div>
+          <div class="seq-legend-item">
+            <div class="legend-dot" style="background:#f85149;opacity:0.6"></div>
+            Deleted nucleotides (strikethrough)
+          </div>
+        </div>
+
+        <!-- Side-by-side sequences + scores -->
+        <div class="compare-body">
+          <div class="compare-col original">
+            <div class="compare-col-title">Original sequence</div>
+            <div class="compare-seq">${origSeqHtml}</div>
+            ${scoreBlock(orig, "original")}
+          </div>
+          <div class="compare-col mutated">
+            <div class="compare-col-title">Mutated sequence</div>
+            <div class="compare-seq">${mutSeqHtml}</div>
+            ${scoreBlock(mut, "mutated")}
+          </div>
+        </div>
+
+        <!-- Score delta row -->
+        ${d.score_delta != null ? `
+        <div class="compare-delta">
+          <span class="delta-label">Score change after mutation:</span>
+          <span class="delta-value ${d.score_delta < -0.3 ? "worse" : d.score_delta > 0.3 ? "better" : "neutral"}">
+            ${sign}${escHtml(String(d.score_delta))}
+          </span>
+          <span class="delta-interp" style="font-size:0.72rem;">
+            (${d.score_delta < 0 ? "drop" : "rise"} in naturalness score)
+          </span>
+        </div>` : ""}
+
+        <!-- Plain-English verdict -->
+        <div class="verdict-banner ${verdictCls}">
+          <span class="verdict-icon">${verdictIcon}</span>
+          <span>${verdictText}</span>
+        </div>
+
+      </div>`;
+  }
+
+  function scoreBlock(side, cls) {
+    if (side.score == null) {
+      return `<div class="compare-effect" style="color:#8b949e;font-size:0.78rem;margin-top:0.3rem">Score not available</div>`;
+    }
+    const pct   = scoreToPct(side.score);
+    const mCls  = scoreMeterClass(side.score);
+    return `
+      <div class="compare-score-row" style="margin-top:0.4rem">
+        <span class="compare-score-num">${escHtml(String(side.score))}</span>
+        <span style="font-size:0.65rem;color:#8b949e;margin-left:0.3rem">Evo 2 naturalness score</span>
+      </div>
+      <div class="score-meter-wrap">
+        <div class="score-meter-track">
+          <div class="score-meter-fill ${mCls}" style="width:${pct}%"></div>
+        </div>
+        <div class="score-meter-labels">
+          <span>More unusual</span>
+          <span>More natural</span>
+        </div>
+      </div>
+      <div class="compare-effect" style="margin-top:0.2rem">${escHtml(side.mutation_effect || "—")}</div>`;
+  }
+
+  // Highlight positions that differ between original and mutated sequences.
+  // showMutant=true  → colour the mutated side (insertions orange, deletions shown as gap)
+  // showMutant=false → colour the original side (changed positions orange)
+  function diffSeq(origSeq, mutSeq, showMutant) {
+    const seq = showMutant ? mutSeq : origSeq;
+    const min = Math.min(origSeq.length, mutSeq.length);
+    let html = "";
+    for (let i = 0; i < seq.length; i++) {
+      const nt = escHtml(seq[i]);
+      if (i >= min) {
+        // Extra nucleotides beyond the shorter sequence (insertion side)
+        html += showMutant
+          ? `<span class="nt-changed">${nt}</span>`
+          : `<span class="nt-deleted">${nt}</span>`;
+      } else if (origSeq[i] !== mutSeq[i]) {
+        html += `<span class="nt-changed">${nt}</span>`;
+      } else {
+        html += `<span class="nt-normal">${nt}</span>`;
+      }
+    }
+    return html;
+  }
+
+  // ── Chat send ────────────────────────────────────────────
   function fillInput(el) {
     inputEl.value = el.textContent;
     inputEl.focus();
@@ -264,7 +1210,7 @@
     let html = "";
 
     // Gene tag
-    if (d.gene) html += `<span class="gene-tag">🧬 ${escHtml(d.gene)}</span>`;
+    if (d.gene)     html += `<span class="gene-tag">🧬 ${escHtml(d.gene)}</span>`;
     if (d.mutation) html += `<span class="gene-tag">⚡ ${escHtml(d.mutation)}</span>`;
     if (d.gene || d.mutation) html += "<br><br>";
 
@@ -281,9 +1227,42 @@
       html += `</ul>`;
     }
 
-    // Evo2 badge
-    if (d.evo2 && d.evo2.function !== "unavailable") {
-      html += `<div class="evo2-badge">Evo 2 · ${escHtml(d.evo2.function)} · ${escHtml(d.evo2.mutation_effect)}</div>`;
+    // Evo 2 genetic info card
+    if (d.evo2 && d.evo2.sequence) {
+      const e2 = d.evo2;
+      const available = e2.function !== "unavailable";
+
+      html += `<div class="evo2-card">`;
+      html += `<div class="evo2-card-header"><span>🧬</span> Genetic data from Evo 2</div>`;
+
+      html += `<div class="evo2-row">
+        <div class="evo2-row-label">Gene</div>
+        <div class="evo2-row-value">${escHtml(e2.gene || d.gene)}</div>
+      </div>`;
+
+      html += `<div class="evo2-row">
+        <div class="evo2-row-label">DNA sequence scored by Evo 2</div>
+        <div class="evo2-sequence">${escHtml(e2.sequence)}</div>
+      </div>`;
+
+      if (available && e2.score != null) {
+        html += `<div class="evo2-row">
+          <div class="evo2-row-label">Mutation effect score</div>
+          <div class="evo2-score">
+            <span class="evo2-score-value">${escHtml(String(e2.score))}</span>
+            <span class="evo2-score-hint">lower = more likely damaging to protein function</span>
+          </div>
+        </div>`;
+      }
+
+      if (available) {
+        html += `<div class="evo2-row">
+          <div class="evo2-row-label">Effect classification</div>
+          <div class="evo2-row-value">${escHtml(e2.mutation_effect)}</div>
+        </div>`;
+      }
+
+      html += `</div>`;
     }
 
     if (d.cached) html += `<div style="font-size:0.72rem;color:#8b949e;margin-top:0.5rem">⚡ cached</div>`;
